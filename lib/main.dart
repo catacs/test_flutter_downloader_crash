@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  FlutterDownloader.initialize();
+  FlutterBlue.instance.scan();
+
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -44,16 +52,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  bool _downloading = false;
 
-  void _incrementCounter() {
+  void _downloadFile() async {
+    var saveDir = await getApplicationDocumentsDirectory();
+    var fileName = 'http://clips.vorwaerts-gmbh.de/VfE_html5.mp4';
+    var url = '';
+    FlutterDownloader.enqueue(
+      url: url,
+      savedDir: saveDir.path,
+      fileName: fileName,
+      showNotification: false,
+      openFileFromNotification: false,
+    );
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _downloading = true;
     });
   }
 
@@ -95,16 +108,16 @@ class _MyHomePageState extends State<MyHomePage> {
               'You have pushed the button this many times:',
             ),
             Text(
-              '$_counter',
+              _downloading ? 'Downloding' : 'Not downloading',
               style: Theme.of(context).textTheme.display1,
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        onPressed: _downloadFile,
+        tooltip: 'Download',
+        child: Icon(Icons.file_download),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
